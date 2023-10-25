@@ -3,18 +3,25 @@ def parse_input(user_input):
     cmd = cmd.strip().lower()
     return cmd, *args
 
+def input_error(func):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValueError:
+            return "Give me name and phone please."
+        except IndexError as e:
+            return "Give me the name please."
+
+    return inner
+
+@input_error
 def add_contact(args, contacts):
-    if len(args) != 2:
-        return "Wrong command use. Example: add [name] [new_number]"
-    
     name, phone = args
     contacts[name] = phone
     return "Contact added."
 
+@input_error
 def change_contact(args, contacts):
-    if len(args) != 2:
-        return "Wrong command use. Example: change [name] [new_number]"
-    
     name, new_phone = args
     if contacts.get(name) != None:
         contacts[name] = new_phone
@@ -22,10 +29,8 @@ def change_contact(args, contacts):
     else:
         return f'{name} not found.'
 
+@input_error
 def show_phone(args, contacts):
-    if len(args) != 1:
-        return "Wrong command use. Example: phone [name]"
-    
     name = args[0]
     if contacts.get(name) != None:
         return contacts[name]
